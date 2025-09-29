@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CountdownTimer from '../components/CountdowmTimer';
 import { getOrderHistory } from '../api/orderApi';
 import toast from 'react-hot-toast';
 
@@ -38,26 +39,38 @@ const OrderHistoryPage = () => {
         <p>You have no past orders.</p>
       ) : (
         <div className="space-y-6">
-          {orders.map((order) => (
-            <div key={order._id} className="border rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-gray-600">Order ID: {order._id}</p>
-                <p className={`font-bold ${getStatusColor(order.status)}`}>{order.status}</p>
-              </div>
-              <p className="text-gray-500 mb-4">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-              <div>
-                {order.orderItems.map((item) => (
-                  <div key={item._id} className="flex justify-between py-1">
-                    <span>{item.name} (x{item.qty})</span>
-                    <span>₹{(item.price * item.qty).toFixed(2)}</span>
+          {orders.map((order) => {
+            // Cancellation happens 15 minutes after order creation
+            const CANCEL_MINUTES = 15;
+            const expiryTimestamp = new Date(order.createdAt).getTime() + CANCEL_MINUTES * 60 * 1000;
+            return (
+              <div key={order._id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-gray-600">Order ID: {order._id}</p>
+                  <p className={`font-bold ${getStatusColor(order.status)}`}>{order.status}</p>
+                </div>
+                <p className="text-gray-500 mb-4">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                {/* Show countdown only if order is pending */}
+                {order.status === 'PENDING' && (
+                  <div className="mb-2">
+                    <span className="text-sm text-red-500">Time left before cancellation: </span>
+                    <CountdownTimer expiryTimestamp={expiryTimestamp} />
                   </div>
-                ))}
+                )}
+                <div>
+                  {order.orderItems.map((item) => (
+                    <div key={item._id} className="flex justify-between py-1">
+                      <span>{item.name} (x{item.qty})</span>
+                      <span>₹{(item.price * item.qty).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-right font-bold mt-2 pt-2 border-t">
+                  Total: ₹{order.totalPrice.toFixed(2)}
+                </div>
               </div>
-              <div className="text-right font-bold mt-2 pt-2 border-t">
-                Total: ₹{order.totalPrice.toFixed(2)}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
