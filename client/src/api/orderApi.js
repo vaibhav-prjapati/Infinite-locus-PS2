@@ -11,7 +11,7 @@ export const cancelOrder = async (orderId) => {
 };
 import axios from 'axios';
 
-const API_URL = '/api/orders';
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/orders`;
 
 // Function to create an order
 export const createOrder = async (orderData) => {
