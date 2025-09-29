@@ -19,6 +19,16 @@ const MenuPage = () => {
       }
     };
     fetchItems();
+
+    // Listen for custom event to refresh menu
+    const handleMenuRefresh = () => {
+      setLoading(true);
+      fetchItems();
+    };
+    window.addEventListener('menu-refresh', handleMenuRefresh);
+    return () => {
+      window.removeEventListener('menu-refresh', handleMenuRefresh);
+    };
   }, []);
 
   const addToCart = (item) => {

@@ -1,3 +1,14 @@
+// Function to cancel an order
+export const cancelOrder = async (orderId) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const config = {
+        headers: {
+            Authorization: `Bearer ${user.token}`,
+        },
+    };
+    const response = await axios.post(`${API_URL}/${orderId}/cancel`, {}, config);
+    return response.data;
+};
 import axios from 'axios';
 
 const API_URL = '/api/orders';

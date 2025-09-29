@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CountdownTimer from '../components/CountdowmTimer';
-import { getOrderHistory } from '../api/orderApi';
+import { CANCEL_MINUTES } from '../constants';
+import { getOrderHistory, cancelOrder } from '../api/orderApi';
 import toast from 'react-hot-toast';
 
 const OrderHistoryPage = () => {
@@ -39,10 +40,25 @@ const OrderHistoryPage = () => {
         <p>You have no past orders.</p>
       ) : (
         <div className="space-y-6">
-          {orders.map((order) => {
-            // Cancellation happens 15 minutes after order creation
-            const CANCEL_MINUTES = 15;
+          {orders.map((order, idx) => {
+            // Cancellation happens CANCEL_MINUTES after order creation
             const expiryTimestamp = new Date(order.createdAt).getTime() + CANCEL_MINUTES * 60 * 1000;
+            const handleExpire = async () => {
+              // Call backend to cancel order and restore stock
+              try {
+                await cancelOrder(order._id);
+                setOrders((prevOrders) => {
+                  const updated = [...prevOrders];
+                  if (updated[idx].status === 'PENDING') {
+                    updated[idx] = { ...updated[idx], status: 'CANCELLED' };
+                    window.dispatchEvent(new Event('menu-refresh'));
+                  }
+                  return updated;
+                });
+              } catch (err) {
+                toast.error('Failed to cancel order and restore items.');
+              }
+            };
             return (
               <div key={order._id} className="border rounded-lg p-4">
                 <div className="flex justify-between items-center mb-2">
@@ -54,7 +70,7 @@ const OrderHistoryPage = () => {
                 {order.status === 'PENDING' && (
                   <div className="mb-2">
                     <span className="text-sm text-red-500">Time left before cancellation: </span>
-                    <CountdownTimer expiryTimestamp={expiryTimestamp} />
+                    <CountdownTimer expiryTimestamp={expiryTimestamp} onExpire={handleExpire} />
                   </div>
                 )}
                 <div>
