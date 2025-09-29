@@ -1,6 +1,3 @@
-// @desc    Cancel order and restore stock
-// @route   POST /api/orders/:id/cancel
-// @access  Private
 const cancelOrder = async (req, res) => {
   const orderId = req.params.id;
   const order = await Order.findById(orderId);
@@ -13,14 +10,12 @@ const cancelOrder = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    // Restore stock for each item in the order
     for (const orderItem of order.orderItems) {
       await Item.updateOne(
         { _id: orderItem.item },
         { $inc: { stockCount: orderItem.qty } }
       ).session(session);
     }
-    // Update order status
     order.status = 'CANCELLED';
     await order.save({ session });
     await session.commitTransaction();
@@ -36,9 +31,6 @@ import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
 import Item from '../models/itemModel.js';
 
-// @desc    Create new order
-// @route   POST /api/orders
-// @access  Private
 const createOrder = async (req, res) => {
   const { orderItems, totalPrice } = req.body;
 

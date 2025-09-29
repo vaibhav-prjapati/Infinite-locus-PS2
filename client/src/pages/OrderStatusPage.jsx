@@ -3,9 +3,6 @@ import CountdownTimer from '../components/CountdowmTimer';
 import { CANCEL_MINUTES } from '../constants';
 
 const OrderStatusPage = () => {
-  // In a real app, you would fetch the order details by ID from the URL
-  // For this example, we'll just show a generic message.
-  
   const expiryTimestamp = Date.now() + CANCEL_MINUTES * 60 * 1000;
   const [expired, setExpired] = React.useState(false);
   const handleExpire = () => setExpired(true);

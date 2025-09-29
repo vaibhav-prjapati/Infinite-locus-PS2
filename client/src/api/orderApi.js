@@ -1,4 +1,3 @@
-// Function to cancel an order
 export const cancelOrder = async (orderId) => {
     const user = JSON.parse(localStorage.getItem('user'));
     const config = {
@@ -13,7 +12,6 @@ import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/orders`;
 
-// Function to create an order
 export const createOrder = async (orderData) => {
     const user = JSON.parse(localStorage.getItem('user'));
     const config = {
@@ -25,7 +23,6 @@ export const createOrder = async (orderData) => {
     return response.data;
 };
 
-// Function to get order history
 export const getOrderHistory = async () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const config = {

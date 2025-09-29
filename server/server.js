@@ -14,30 +14,26 @@ connectDB();
 
 const app = express();
 
-// Configure CORS
+
 app.use(cors({
   origin: ['https://infinite-locus-ps-2.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
-// Middleware to accept JSON data in the body
 app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Backend is running...');
 });
 
-// API Routes
 app.use('/api/items', itemRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Custom error handling middleware
 app.use(notFound);
 app.use(errorHandler);
 
-// Start the cron job for cancelling stale orders
 startCancellationJob();
 
 const PORT = process.env.PORT || 5000;
